@@ -5,7 +5,7 @@
 #include <QTimer>
 #include <thread>
 #include "qcustomplot.h"
-
+#include "include_lib.h"
 
 namespace Ui {
 class MainWindow;
@@ -18,7 +18,7 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-    void sortThreads();
+    void run();
     void startCpuChart();
     void startMemChart();
     void startBubbleChart();
@@ -26,33 +26,39 @@ public:
     void startTimeChart();
 
 signals:
-    void slotUpdateCpuChart();
-    void slotUpdateMemChart();
-    void slotUpdateBubbleChart();
-    void slotUpdateEnergyChart();
-    void slotUpdateTimeChart();
+    void slotUpdateCpuChart(QVector<double>);
+    void slotUpdateMemChart(double, double);
+    void slotUpdateEnergyChart(int);
+    void slotUpdateTimeChart(double);
 
 public slots:
-    void updateCpuChart();
-    void updateMemChart();
-    void updateBubbleChart();
-    void updateEnergyChart();
-    void updateTimeChart();
+    void updateCpuChart(QVector<double>);
+    void updateMemChart(double, double);
+    void updateEnergyChart(int);
+    void updateTimeChart(double);
+
+private slots:
+    void on_killButton_clicked();
+    void on_updateButton_clicked();
 
 private:
     void setColors();
     void calculateCpu();
     void calculateMem();
-    void calculateBubble();
     void calculateEnergy();
     void calculateTime();
 
     std::thread threadCpu;
     std::thread threadMem;
-    std::thread threadBubble;
     std::thread threadEnergy;
     std::thread threadTime;
 
+    Gerenciador * procGerenciador;
+    Gerenciador_cpu * cpuGerenciador;
+    GerenciadorMem * memGerenciador;
+    Gerenciador_Energy * energyGerenciador;
+
+    bool isFirst = true;
     Ui::MainWindow *ui;
     QTimer dataTimer;
     QVector<QColor> colorList;

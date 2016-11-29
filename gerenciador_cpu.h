@@ -11,6 +11,9 @@ private:
     QVector<QVector<long int>>  totalCpu;
     QVector<long int> maxCpu;
     QVector<long int> cpuUsage;
+    QVector<long int> prevMaxCpu;
+    QVector<long int> prevCpuUsage;
+
 
     bool readFromFile();
 

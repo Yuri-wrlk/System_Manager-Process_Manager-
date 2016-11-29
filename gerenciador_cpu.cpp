@@ -1,5 +1,5 @@
 #include <limits>
-#include "gerenciador_cpu.h"
+#include "include_lib.h"
 
 
 
@@ -9,6 +9,12 @@ Gerenciador_cpu::Gerenciador_cpu() :  nCpus(0), arquivo("CPUStats.txt")
     std::string amount;
     std::ifstream cpufile;
 
+    //Apago o conteúdo do arquivo...
+    std::ofstream eraser;
+    eraser.open(arquivo, std::ofstream::out | std::ofstream::trunc);
+    eraser.close();
+
+
     temp << "nproc > " << arquivo;
     system(temp.str().c_str());
 
@@ -16,7 +22,12 @@ Gerenciador_cpu::Gerenciador_cpu() :  nCpus(0), arquivo("CPUStats.txt")
     if(cpufile >> amount)
         nCpus = std::stol(amount);
 
+
+    maxCpu.fill(0, 4);
+    cpuUsage.fill(0, 4);
+
     updateParameters();
+
 }
 
 int Gerenciador_cpu::getNCpus()
@@ -26,6 +37,10 @@ int Gerenciador_cpu::getNCpus()
 
 void Gerenciador_cpu::updateParameters()
 {
+
+    prevMaxCpu = maxCpu;
+    prevCpuUsage = cpuUsage;
+
     //Clearing previous values
     for (int i = 0; i < totalCpu.size(); ++i) {
 
@@ -38,6 +53,11 @@ void Gerenciador_cpu::updateParameters()
     totalCpu.resize(nCpus + 1);
     cpuUsage.resize(nCpus);
     maxCpu.resize(nCpus);
+
+    //Apago o conteúdo do arquivo...
+    std::ofstream eraser;
+    eraser.open(arquivo, std::ofstream::out | std::ofstream::trunc);
+    eraser.close();
 
     std::stringstream temp;
 
@@ -62,7 +82,7 @@ QVector<double> Gerenciador_cpu::calculateUsage()
     QVector<double> cpuPercentage;
     for(int i = 0; i < nCpus; ++i)
     {
-        cpuPercentage.push_back((cpuUsage[i] / static_cast<double>(maxCpu[i])) * 100);
+        cpuPercentage.push_back(((cpuUsage.at(i) - prevCpuUsage.at(i)) * 100)/ static_cast<double>(maxCpu.at(i) - prevMaxCpu.at(i)) );
     }
     return cpuPercentage;
 }
@@ -72,24 +92,25 @@ bool Gerenciador_cpu::readFromFile()
 
     std::string temp;
     std::ifstream channel;
-    long int temp_value;
     int pos(0);
 
     channel.open(arquivo);
     if(channel.is_open()){
         while(!channel.eof()){
             while(channel >> temp or !channel.eof()){
-                temp_value = std::stol(temp);
-                totalCpu[pos].push_back(temp_value);
+                totalCpu[pos].push_back(stol(temp));
                 if(totalCpu[pos].size() == 8)
                 {
                     pos++;
-                    if(pos == nCpus + 1)
+                    if(pos == nCpus + 1){
+                        channel.close();
                         return true;
+                    }
                 }
             }
             if(temp == "\0") std::getline(channel,temp);
         }
+        channel.close();
         return true;
     }
     else{

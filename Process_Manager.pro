@@ -15,16 +15,20 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     qcustomplot.cpp \
-    Read_and_Check.cpp \
-    Gerenciador.cpp \
-    gerenciador_cpu.cpp
+    gerenciador_cpu.cpp \
+    read.cpp \
+    gerenciador_mem.cpp \
+    gerenciador_energy.cpp \
+    gerenciador.cpp
 
 HEADERS  += mainwindow.h \
     qcustomplot.h \
     include_lib.h \
     processo.h \
     gerenciador_mem.h \
-    gerenciador_cpu.h
+    gerenciador_cpu.h \
+    gerenciador_energy.h \
+    gerenciador.h
 
 FORMS    += mainwindow.ui
 
